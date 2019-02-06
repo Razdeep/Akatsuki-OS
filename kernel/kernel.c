@@ -7,7 +7,7 @@
 #endif
 
 #if !defined(__i386__)
-#error "This tutorial needs to be compiled with a ix86-elf compiler"
+#error "You need to compile with an ix86-elf compiler"
 #endif
 
 enum vga_color
@@ -135,10 +135,42 @@ void terminal_draw_horizontal_line(const char c)
 	return;
 }
 
+void set_cursor(size_t x, size_t y)
+{
+	terminal_column = x;
+	terminal_row = y;
+}
+void draw_box(size_t x, size_t y, size_t height, size_t width, enum vga_color color)
+{
+	// Experimental
+	height += y;
+	width += x;
+	uint8_t previous_terminal_colour = terminal_color;
+	terminal_color = vga_entry_color(color, color);
+	terminal_row = y; 
+	while(terminal_row < height)
+	{
+		terminal_column = x;
+		while(terminal_column < width)
+		{
+			terminal_putchar(' ');
+		}
+		terminal_putchar('\n');
+	}
+	terminal_color = previous_terminal_colour;
+}
+
 void kernel_main(void)
 {
 	terminal_initialize();
 	terminal_draw_horizontal_line('-');
-	terminal_write_center("Welcome to Akatsuki!");
+	terminal_write_center("Akatsuki OS 0.1");
+	// set_cursor(terminal_column, terminal_row + 1); //Method signature set_cursor(x,y)
+	terminal_write_center("Made with Love by Rajdeep Roy Chowdhury");
 	terminal_draw_horizontal_line('-');
+	draw_box(20, 7, 10, 40, VGA_COLOR_LIGHT_MAGENTA);
+	set_cursor(0, 7);
+	terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_LIGHT_MAGENTA));
+	terminal_write_center("Welcome to Akatsuki...");
+	
 }
